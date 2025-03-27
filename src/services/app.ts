@@ -1,0 +1,27 @@
+import type { Logger } from "pino";
+import type { WASocket } from "@whiskeysockets/baileys";
+
+import type { Services } from "anna/core/dependency";
+import type { Socket } from "anna/core/socket";
+import type { Message } from "anna/core/message";
+
+export class AppService {
+    private readonly socket: Socket
+    private readonly log: Logger;
+
+    constructor(private readonly services: Services) {
+        this.socket = this.services.take("socket") as Socket;
+        this.log = this.services.take("log") as Logger;
+
+        this.socket.on("message", this.onMessage.bind(this));
+    }
+
+    private async onMessage(_socket: WASocket, message: Message) {
+        this.log.info(`Received message at ${message.receiver.id} from ${message.sender.id}: ${message.text}`);
+    }
+
+    public start() {
+        this.log.info("Starting app service...");
+        this.socket.start();
+    }
+}

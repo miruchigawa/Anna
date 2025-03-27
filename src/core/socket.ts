@@ -6,8 +6,9 @@ import type { Logger } from "pino";
 import type { Boom } from "@hapi/boom";
 import type { Chat, ConnectionState, Contact, GroupMetadata, MessageUpsertType, useMultiFileAuthState, UserFacingSocketConfig, WAMessage, WASocket } from "@whiskeysockets/baileys";
 
-import { pinoConfig } from "anna/constans/configure";
+import { Message, MessageType } from "anna/core/message";
 import { EventEmitter } from "anna/lib/event";
+import { pinoConfig } from "anna/constants/configure";
 
 export interface ISocketConfig extends Omit<UserFacingSocketConfig, "auth"> {
     session: Awaited<ReturnType<typeof useMultiFileAuthState>>,
@@ -15,7 +16,7 @@ export interface ISocketConfig extends Omit<UserFacingSocketConfig, "auth"> {
 }
 
 export interface ISocketEventEmitter {
-    message: () => void;
+    message: (socket: WASocket, message: Message) => void;
 }
 
 type MessagingHistory = { contacts: Contact[]; chats: Chat[]; messages: WAMessage[]; };
@@ -24,6 +25,7 @@ type MessagesUpsert = { messages: WAMessage[]; type: MessageUpsertType; requestI
 export class Socket extends EventEmitter<ISocketEventEmitter> {
     private socket?: WASocket;
     private log: Logger;
+    // TODO: Use redis for caching
     private groupCache: NodeCache;
     private messageCache: NodeCache;
 
@@ -108,8 +110,10 @@ export class Socket extends EventEmitter<ISocketEventEmitter> {
 
         await this.socket.readMessages(messages.map(v => v.key));
 
-        for (const _message of messages) {
-            this.emit("message");
+        for (const message of messages) {
+            const packet = new Message(this.socket, message);
+            if (packet.type == MessageType.Unknown) continue;
+            this.emit("message", this.socket, packet);
         }
     }
 }
