@@ -1,15 +1,38 @@
-# anna
+# Usage Guide
 
-To install dependencies:
+## Prerequisites
+- Ensure you have [Bun](https://bun.sh/) installed.
+- Ensure you have two phone numbers: one for the bot and one for the owner.
 
-```bash
-bun install
-```
+## Installation
+1. Clone the repository:
+    ```bash
+        git clone https://github.com/miruchigawa/Anna.git
+        cd Anna
+    ```
+3. Install dependencies using Bun:
+    ```bash
+    bun install
+    ```
+4. Copy the example environment file:
+    ```bash
+    cp .env.example .env
+    ```
 
-To run:
+## Usage
+1. Start the application:
+    ```bash
+    bun start
+    ```
 
-```bash
-bun run index.ts
-```
+## Additional Commands
+- Development:
+  ```bash
+  bun dev
+  ```
 
-This project was created using `bun init` in bun v1.2.6. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+## Contributing
+Feel free to submit issues or pull requests to improve this project.
+
+## License
+This project is licensed under the [MIT License](LICENSE).
