@@ -10,7 +10,6 @@ build-and-push:
   stage: build
   only:
     - main
-    - merge_requests
   before_script:
     - echo "$DOCKERHUB_TOKEN" | docker login -u $DOCKERHUB_USERNAME --password-stdin
   script:
