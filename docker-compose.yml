@@ -1,0 +1,7 @@
+services:
+  anna:
+    image: miruchigawa/anna:latest
+    container_name: anna-bot
+    env_file:
+      - .env
+    restart: unless-stopped
