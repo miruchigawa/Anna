@@ -2,7 +2,7 @@ import pino from "pino";
 import { useMultiFileAuthState } from "@whiskeysockets/baileys";
 
 import { Socket } from "anna/core/socket";
-import { AppBuilder } from "anna/core/dependency";
+import { AppBuilder } from "anna/lib/dependency";
 import { AppService } from "anna/services/app";
 import { pinoConfig } from "anna/constants/configure";
 

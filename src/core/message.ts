@@ -11,6 +11,16 @@ export enum MessageType {
     Message
 }
 
+export enum MediaType {
+    Image,
+    Video,
+    Audio,
+    Document,
+    Sticker,
+    Unknown
+}
+
+
 export class Message {
     private pool?: NodeJS.Timer;
     private cancelDefer?: NodeJS.Timer;
@@ -32,7 +42,7 @@ export class Message {
     public get type(): MessageType {
         if (this.packet.broadcast) return MessageType.Status;
         const validProperty = ["conversation", "extendedTextMessage", "imageMessage", "videoMessage", "stickerMessage", "documentMessage", "audioMessage", "productMessage", "buttonsResponseMessage", "contactMessage", "locationMessage", "liveLocationMessage", "listMessage", "templateButtonReplyMessage", "templateMessage", "ephemeralMessage"] as const;
-        if (validProperty.some(p => p in (this.packet.message || {}))) return MessageType.Message;
+        if (validProperty.some(p => p in (this.packet.message ?? {}))) return MessageType.Message;
         return MessageType.Unknown;
     }
 
@@ -207,15 +217,6 @@ export class Sender {
         else 
             this.socket.sendMessage(this.id, content, misc);
     }
-}
-
-export enum MediaType {
-    Image,
-    Video,
-    Audio,
-    Document,
-    Sticker,
-    Unknown
 }
 
 export class MediaMessage {

@@ -1,7 +1,7 @@
 import type { Logger } from "pino";
 import type { WASocket } from "@whiskeysockets/baileys";
 
-import type { Services } from "anna/core/dependency";
+import type { Services } from "anna/lib/dependency";
 import type { Socket } from "anna/core/socket";
 import type { Message } from "anna/core/message";
 
