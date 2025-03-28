@@ -15,7 +15,7 @@ build-and-push:
     - echo "$DOCKERHUB_TOKEN" | docker login -u $DOCKERHUB_USERNAME --password-stdin
   script:
     - |
-      DOCKER_IMAGE_NAME="$DOCKERHUB_USERNAME/$CI_PROJECT_NAME"
+      DOCKER_IMAGE_NAME="$DOCKERHUB_USERNAME/anna"
       DOCKER_IMAGE_TAG="${CI_COMMIT_SHA:0:8}"
       
       docker build -t $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG .
