@@ -12,7 +12,7 @@ build-and-push:
     - main
     - merge_requests
   before_script:
-    - docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_TOKEN
+    - echo "$DOCKERHUB_TOKEN" | docker login -u $DOCKERHUB_USERNAME --password-stdin
   script:
     - |
       DOCKER_IMAGE_NAME="$DOCKERHUB_USERNAME/$CI_PROJECT_NAME"
