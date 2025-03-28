@@ -11,12 +11,12 @@ await builder.configureService(async services => {
     const socket = new Socket({ 
         session: await useMultiFileAuthState("session")
     });
-    services.register("socket", socket);
-    services.register("log", pino({ level: "info", transport: { target: "pino-pretty", options: pinoConfig } }));
-    services.register("app", new AppService(services));
+    services.addSingleton("socket", socket);
+    services.addSingleton("log", pino({ level: "info", transport: { target: "pino-pretty", options: pinoConfig } }));
+    services.addSingleton("app", new AppService(services));
 });
 
 const services = builder.build();
 
-const app = services.take("app") as AppService;
+const app = services.getRequiredService("app") as AppService;
 app.start();

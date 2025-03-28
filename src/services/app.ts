@@ -10,16 +10,24 @@ export class AppService {
     private readonly log: Logger;
 
     constructor(private readonly services: Services) {
-        this.socket = this.services.take("socket") as Socket;
-        this.log = this.services.take("log") as Logger;
+        this.socket = this.services.getRequiredService("socket") as Socket;
+        this.log = this.services.getRequiredService("log") as Logger;
 
         this.socket.on("message", this.onMessage.bind(this));
     }
 
+    /**
+     * Handle incoming messages
+     * @param _socket Socket connection
+     * @param message Message received
+     */
     private async onMessage(_socket: WASocket, message: Message) {
         this.log.info(`Received message at ${message.receiver.id} from ${message.sender.id}: ${message.text}`);
     }
 
+    /**
+     * Start the app service
+     */
     public start() {
         this.log.info("Starting app service...");
         this.socket.start();

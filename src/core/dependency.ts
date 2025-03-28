@@ -3,12 +3,12 @@ export type ServiceValue = any;
 export class Services {
     private services = new Map<string, ServiceValue>();
 
-    public register(name: string, service: ServiceValue) {
+    public addSingleton(name: string, service: ServiceValue) {
         // console.log(`Registering service ${name}`);
         this.services.set(name, service);
     }
 
-    public take(name: string): ServiceValue {
+    public getRequiredService(name: string): ServiceValue {
         // console.log(`Taking service ${name}`);
         if (this.services.has(name)) 
             return this.services.get(name) as ServiceValue;

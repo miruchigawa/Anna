@@ -1,4 +1,4 @@
-import { isJidGroup, type AnyMessageContent, type GroupMetadata, type MiscMessageGenerationOptions, type WAMessage, type WASocket } from "@whiskeysockets/baileys";
+import { downloadMediaMessage, isJidGroup, type AnyMessageContent, type GroupMetadata, type MiscMessageGenerationOptions, type WAMessage, type WASocket } from "@whiskeysockets/baileys";
 
 export enum ReceiverType {
     Group,
@@ -22,7 +22,7 @@ export class Message {
      * @returns {string} The ID of the message
      */
     public get id(): string {
-        return this.packet.key.id ?? "";
+        return this.packet.key.id || "";
     }
 
     /**
@@ -32,17 +32,35 @@ export class Message {
     public get type(): MessageType {
         if (this.packet.broadcast) return MessageType.Status;
         const validProperty = ["conversation", "extendedTextMessage", "imageMessage", "videoMessage", "stickerMessage", "documentMessage", "audioMessage", "productMessage", "buttonsResponseMessage", "contactMessage", "locationMessage", "liveLocationMessage", "listMessage", "templateButtonReplyMessage", "templateMessage", "ephemeralMessage"] as const;
-        if (validProperty.some(p => p in (this.packet.message ?? {}))) return MessageType.Message;
+        if (validProperty.some(p => p in (this.packet.message || {}))) return MessageType.Message;
         return MessageType.Unknown;
     }
 
+    /**
+     * Get the text of the message
+     * @returns {string} The text of the message
+     */
     public get text(): string {
+        // console.log(this.packet.message);
         return this.packet.message?.conversation
-            ?? this.packet.message?.extendedTextMessage?.text
-            ?? this.packet.message?.imageMessage?.caption
-            ?? this.packet.message?.videoMessage?.caption
-            ?? this.packet.message?.editedMessage?.message?.conversation
-            ?? "";
+            || this.packet.message?.extendedTextMessage?.text
+            || this.packet.message?.imageMessage?.caption
+            || this.packet.message?.videoMessage?.caption
+            || this.packet.message?.protocolMessage?.editedMessage?.conversation
+            || "";
+    }
+
+    /**
+     * Get the media of the message
+     * @returns {MediaMessage} The media of the message
+     * @example
+     * ```typescript
+     * const media = message.media;
+     * if (media.type === MediaType.Unknown) throw new Error("Unknown media type");
+     * const buffer = await media.download(); // Download the media
+     */
+    public get media(): MediaMessage {
+        return new MediaMessage(this.packet);
     }
 
     /**
@@ -115,7 +133,7 @@ export class Receiver {
      * @returns {string} The ID of the receiver
      */
     public get id(): string {
-        return this.packet.key.remoteJid ?? "";
+        return this.packet.key.remoteJid || "";
     }
 
     /**
@@ -157,9 +175,9 @@ export class Sender {
      * @returns {string} The ID of the sender
      */
     public get id(): string {
-        const maid = this.socket.user?.id?.replace(/:d+/, "") ?? "";
-        const romid = this.packet.key.remoteJid ?? "";
-        return this.packet.participant ?? (this.self ? maid : romid);
+        const maid = this.socket.user?.id?.replace(/:d+/, "") || "";
+        const romid = this.packet.key.remoteJid || "";
+        return this.packet.participant || (this.self ? maid : romid);
     }
 
     /**
@@ -167,7 +185,7 @@ export class Sender {
      * @returns {boolean} Whether the sender is the bot
      */
     public get self(): boolean {
-        return this.packet.key.fromMe ?? false;
+        return this.packet.key.fromMe || false;
     }
 
     /**
@@ -175,7 +193,7 @@ export class Sender {
      * @returns {string} The name of the sender
      */
     public get name(): string {
-        return this.packet.pushName ?? this.id.split("@")[0] as string;
+        return this.packet.pushName || this.id.split("@")[0] as string;
     }
 
     /**
@@ -188,5 +206,32 @@ export class Sender {
             this.socket.sendMessage(this.id, { text: content }, misc );
         else 
             this.socket.sendMessage(this.id, content, misc);
+    }
+}
+
+export enum MediaType {
+    Image,
+    Video,
+    Audio,
+    Document,
+    Sticker,
+    Unknown
+}
+
+export class MediaMessage {
+    constructor(private packet: WAMessage) {}
+
+    public get type(): MediaType {
+        return this.packet.message?.imageMessage ? MediaType.Image
+            : this.packet.message?.videoMessage ? MediaType.Video
+            : this.packet.message?.audioMessage ? MediaType.Audio
+            : this.packet.message?.documentMessage ? MediaType.Document
+            : this.packet.message?.stickerMessage ? MediaType.Sticker
+            : MediaType.Unknown;
+    }
+
+    public async download(): Promise<Buffer> {
+        if (this.type === MediaType.Unknown) throw new Error("Unknown media type");
+        return await downloadMediaMessage(this.packet, "buffer", {});
     }
 }
