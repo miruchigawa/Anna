@@ -5,13 +5,14 @@ import type { Services } from "anna/lib/dependency";
 import type { Socket } from "anna/core/socket";
 import type { Message } from "anna/core/message";
 
+
 export class AppService {
     private readonly socket: Socket
     private readonly log: Logger;
 
     constructor(private readonly services: Services) {
-        this.socket = this.services.getRequiredService("socket") as Socket;
-        this.log = this.services.getRequiredService("log") as Logger;
+        this.socket = this.services.getRequiredService<Socket>("socket");
+        this.log = this.services.getRequiredService<Logger>("log");
 
         this.socket.on("message", this.onMessage.bind(this));
     }
