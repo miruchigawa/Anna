@@ -18,5 +18,5 @@ await builder.configureService(async services => {
 
 const services = builder.build();
 
-const app = services.getRequiredService("app") as AppService;
+const app = services.getRequiredService<AppService>("app");
 app.start();
